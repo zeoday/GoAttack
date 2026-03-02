@@ -1,0 +1,48 @@
+id: flow-test-animal
+
+info:
+  name: Flow Test - Dog Cat Monkey
+  author: GoAttack
+  severity: info
+  description: A test template to verify flow logic.
+  tags: test,flow
+
+# 定义执行流程：只有当 http(1) 匹配成功，才会执行 http(2)，依次类推
+flow: http(1) && http(2) && http(3)
+
+http:
+  # 请求 1: 寻找 "dog"
+  - raw:
+      - |
+        GET /?test=1 HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: word
+        words:
+          - "dog"  # 如果响应体包含 "dog"，则认为匹配成功，继续执行 http(2)
+        part: body
+
+  # 请求 2: 寻找 "cat"
+  - raw:
+      - |
+        GET /?test=2 HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: word
+        words:
+          - "cat" # 如果响应体包含 "cat"，则认为匹配成功，继续执行 http(3)
+        part: body
+
+  # 请求 3: 寻找 "monkey"
+  - raw:
+      - |
+        GET /?test=3 HTTP/1.1
+        Host: {{Hostname}}
+
+    matchers:
+      - type: word
+        words:
+          - "monkey" # 如果响应体包含 "monkey"，则认为匹配成功，整个模板验证通过
+        part: body
