@@ -11,14 +11,14 @@ ENV GOPROXY=https://goproxy.cn,direct
 RUN apk add --no-cache gcc musl-dev linux-headers nmap nmap-scripts libpcap-dev git
 
 COPY go.mod go.sum ./
-COPY service/lib/nuclei service/lib/nuclei
+COPY service/lib/nuclei/ service/lib/nuclei/
 RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=1 go build -trimpath -ldflags="-w -s" -o goattack main.go
 
 # Stage 3: Final image
-FROM alpine:latest
+FROM alpine:3.19
 WORKDIR /app
 RUN apk add --no-cache nmap nmap-scripts tzdata libpcap
 
