@@ -11,12 +11,13 @@
               </template>
               批量操作
             </a-button>
-            <a-button type="primary" @click="handleScanImport" :loading="scanLoading">
+            <a-button type="primary" @click="handleTriggerUpload" :loading="scanLoading">
               <template #icon>
                 <icon-sync />
               </template>
               批量导入
             </a-button>
+            <input type="file" ref="fileInputRef" webkitdirectory directory multiple style="display: none" @change="handleFilesSelected" />
             <a-button @click="handleManualImport">
               <template #icon>
                 <icon-plus />
@@ -25,7 +26,7 @@
             </a-button>
           </template>
           <template v-else>
-            <a-tag color="blue">已选择 {{ selectedKeys.length }} 项</a-tag>
+            <a-tag color="blue">已选择 {{ selectedKeys.length }} �?/a-tag>
             <a-button type="primary" :disabled="selectedKeys.length === 0" @click="handleBatchVerify">
               <template #icon>
                 <icon-play-arrow />
@@ -148,7 +149,7 @@
               {{ getSeverityText(currentDetail.severity) }}
             </a-tag>
           </a-descriptions-item>
-          <a-descriptions-item label="作者">{{ currentDetail.author || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="作�?>{{ currentDetail.author || '-' }}</a-descriptions-item>
           <a-descriptions-item label="分类">{{ currentDetail.category }}</a-descriptions-item>
           <a-descriptions-item label="协议">{{ currentDetail.protocol }}</a-descriptions-item>
           <a-descriptions-item label="创建时间">{{ formatTime(currentDetail.created_at) }}</a-descriptions-item>
@@ -185,27 +186,27 @@
           </div>
           <a-textarea
             v-model="manualContent"
-            placeholder="请粘贴 Nuclei YAML 格式的模板内容..."
+            placeholder="请粘�?Nuclei YAML 格式的模板内�?.."
             :auto-size="{ minRows: 20, maxRows: 30 }"
             style="font-family: monospace; font-size: 12px; background-color: var(--color-fill-1)"
           />
         </a-tab-pane>
 
-        <!-- Tab 2: HTTP请求包转换 -->
-        <a-tab-pane key="http" title="HTTP请求包转换">
-          <!-- Step 1: 输入HTTP请求包 + 配置 -->
+        <!-- Tab 2: HTTP请求包转�?-->
+        <a-tab-pane key="http" title="HTTP请求包转�?>
+          <!-- Step 1: 输入HTTP请求�?+ 配置 -->
           <div v-show="httpStep === 1">
             <a-row :gutter="16">
               <a-col :span="12">
                 <div style="margin-bottom: 10px">
-                  <span style="font-weight: bold">原始HTTP请求包</span>
+                  <span style="font-weight: bold">原始HTTP请求�?/span>
                   <a-tooltip content="粘贴完整的HTTP请求包，包括请求行、请求头和请求体">
                     <icon-question-circle style="margin-left: 4px; color: var(--color-text-3); cursor: help" />
                   </a-tooltip>
                 </div>
                 <a-textarea
                   v-model="httpRawContent"
-                  placeholder='粘贴HTTP请求包，例如：&#10;POST /api/login HTTP/1.1&#10;Host: example.com&#10;Content-Type: application/json&#10;&#10;{"user":"admin","pass":"123"}'
+                  placeholder='粘贴HTTP请求包，例如�?#10;POST /api/login HTTP/1.1&#10;Host: example.com&#10;Content-Type: application/json&#10;&#10;{"user":"admin","pass":"123"}'
                   :auto-size="{ minRows: 25, maxRows: 100 }"
                   style="font-family: monospace; font-size: 12px; background-color: var(--color-fill-1)"
                 />
@@ -218,7 +219,7 @@
                   <a-form-item label="POC名称">
                     <a-input v-model="httpConvertForm.poc_name" placeholder="可选，自定义POC名称" />
                   </a-form-item>
-                  <a-form-item label="作者">
+                  <a-form-item label="作�?>
                     <a-input v-model="httpConvertForm.author" placeholder="可选，默认 GoAttack" />
                   </a-form-item>
                   <a-form-item label="危害等级">
@@ -236,11 +237,11 @@
                   <a-form-item label="匹配方式">
                     <a-select v-model="httpConvertForm.match_type" placeholder="默认状态码匹配">
                       <a-option value="status">状态码匹配</a-option>
-                      <a-option value="word">关键词匹配</a-option>
+                      <a-option value="word">关键词匹�?/a-option>
                       <a-option value="regex">正则匹配</a-option>
                     </a-select>
                   </a-form-item>
-                  <a-form-item label="匹配值">
+                  <a-form-item label="匹配�?>
                     <a-input v-model="httpConvertForm.match_value" :placeholder="getMatchPlaceholder()" />
                   </a-form-item>
                 </a-form>
@@ -252,18 +253,18 @@
             <div v-if="convertedInfo" style="margin-bottom: 12px">
               <a-alert type="success">
                 <template #title>解析成功</template>
-                方法: {{ convertedInfo.method }} | 路径: {{ convertedInfo.path }} | Host: {{ convertedInfo.host }} | 请求头:
-                {{ convertedInfo.headers_count }}个 | 请求体: {{ convertedInfo.has_body ? '有' : '无' }}
+                方法: {{ convertedInfo.method }} | 路径: {{ convertedInfo.path }} | Host: {{ convertedInfo.host }} | 请求�?
+                {{ convertedInfo.headers_count }}�?| 请求�? {{ convertedInfo.has_body ? '�? : '�? }}
               </a-alert>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
-              <span style="font-weight: bold">生成的 YAML 模板（可编辑）</span>
+              <span style="font-weight: bold">生成�?YAML 模板（可编辑�?/span>
               <a-space>
                 <a-button size="small" @click="handleCopyYaml">
                   <template #icon><icon-copy /></template>
                   复制
                 </a-button>
-                <a-button type="primary" size="small" @click="handleUseConverted">使用此模板导入</a-button>
+                <a-button type="primary" size="small" @click="handleUseConverted">使用此模板导�?/a-button>
               </a-space>
             </div>
             <a-textarea
@@ -277,11 +278,11 @@
       <template #footer>
         <a-space>
           <a-button @click="handleManualCancel">取消</a-button>
-          <!-- HTTP转换Tab的分步按钮 -->
+          <!-- HTTP转换Tab的分步按�?-->
           <template v-if="manualTabKey === 'http'">
             <a-button v-if="httpStep === 2" @click="httpStep = 1">
               <template #icon><icon-left /></template>
-              上一步
+              上一�?
             </a-button>
             <a-button
               v-if="httpStep === 1"
@@ -294,7 +295,7 @@
               生成 YAML 模板
             </a-button>
           </template>
-          <!-- YAML Tab的导入按钮 -->
+          <!-- YAML Tab的导入按�?-->
           <a-button
             v-if="manualTabKey === 'yaml'"
             type="primary"
@@ -302,7 +303,7 @@
             @click="handleSaveManual"
             :loading="saveManualLoading"
           >
-            开始导入
+            开始导�?
           </a-button>
         </a-space>
       </template>
@@ -334,7 +335,7 @@ import {
   deletePocTemplate,
   batchDeletePocs,
   scanAndImportPocs,
-  selectDirectory,
+  uploadDirectoryPocs,
   saveManualPoc,
   convertHTTPToYaml,
   type PocTemplate,
@@ -349,6 +350,7 @@ const saveManualLoading = ref(false)
 const convertLoading = ref(false)
 const detailVisible = ref(false)
 const manualVisible = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 const manualTabKey = ref('yaml')
 const httpStep = ref(1)
 const manualContent = ref('')
@@ -526,7 +528,7 @@ const onSorterChange = (dataIndex: string, direction: string) => {
   fetchData()
 }
 
-// --- 弹窗与详情操作 ---
+// --- 弹窗与详情操�?---
 const showDetail = async (record: PocTemplate) => {
   try {
     const { data } = await getPocTemplateDetail(record.id)
@@ -576,7 +578,7 @@ const handleBatchDelete = async () => {
   if (selectedKeys.value.length === 0) return
   Modal.confirm({
     title: '确认删除',
-    content: `确认要删除选中的 ${selectedKeys.value.length} 个 POC 模板吗？此操作不可撤销。`,
+    content: `确认要删除选中�?${selectedKeys.value.length} �?POC 模板吗？此操作不可撤销。`,
     onOk: async () => {
       try {
         loading.value = true
@@ -607,19 +609,47 @@ const handleBatchVerify = () => {
 }
 
 // --- 导入处理 ---
-const handleScanImport = async () => {
+const handleTriggerUpload = () => {
+  if (fileInputRef.value) {
+    fileInputRef.value.click()
+  }
+}
+
+const handleFilesSelected = async (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const files = target.files
+  if (!files || files.length === 0) return
+
+  scanLoading.value = true
+  const formData = new FormData()
+  let yamlCount = 0
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+      formData.append('files', file)
+      yamlCount++
+    }
+  }
+
+  if (yamlCount === 0) {
+    Message.warning('未在所选目录中找到 YAML 格式�?POC 模板')
+    scanLoading.value = false
+    if (fileInputRef.value) fileInputRef.value.value = ''
+    return
+  }
+
   try {
-    const response = await selectDirectory()
-    const path = response.data
-    if (!path) return
-    scanLoading.value = true
-    const { data } = await scanAndImportPocs({ path })
-    Message.success(`扫描导入成功！总文件数：${data.total_files}，有效POC：${data.valid_files}`)
+    Message.info(`开始上传并导入 ${yamlCount} 个模板文件，请耐心等待...`)
+    const { data } = await uploadDirectoryPocs(formData)
+    Message.success(`扫描导入成功！共发现有效POC模板�?{data.valid_files}个`)
     fetchData()
   } catch (err: any) {
     // 拦截器已处理
   } finally {
     scanLoading.value = false
+    if (fileInputRef.value) {
+      fileInputRef.value.value = ''
+    }
   }
 }
 
@@ -650,9 +680,9 @@ const getMatchPlaceholder = () => {
     case 'word':
       return '关键词，多个用逗号分隔'
     case 'regex':
-      return '正则表达式'
+      return '正则表达�?
     default:
-      return '匹配值'
+      return '匹配�?
   }
 }
 
@@ -672,9 +702,9 @@ const handleConvertHTTP = async () => {
     convertedYaml.value = data.yaml_content
     convertedInfo.value = data.parsed_info
     httpStep.value = 2
-    Message.success('HTTP请求包转换成功')
+    Message.success('HTTP请求包转换成�?)
   } catch (err: any) {
-    // 拦截器处理
+    // 拦截器处�?
   } finally {
     convertLoading.value = false
   }
@@ -684,7 +714,7 @@ const handleUseConverted = () => {
   if (!convertedYaml.value) return
   manualContent.value = convertedYaml.value
   manualTabKey.value = 'yaml'
-  Message.success('已切换到YAML模板标签页，可直接导入')
+  Message.success('已切换到YAML模板标签页，可直接导�?)
 }
 
 const handleCopyYaml = () => {
@@ -692,7 +722,7 @@ const handleCopyYaml = () => {
   navigator.clipboard
     .writeText(convertedYaml.value)
     .then(() => {
-      Message.success('已复制到剪贴板')
+      Message.success('已复制到剪贴�?)
     })
     .catch(() => {
       Message.error('复制失败')
@@ -705,13 +735,13 @@ const handleSaveManual = async () => {
   try {
     const { data } = await saveManualPoc({ content: manualContent.value })
     Message.success({
-      content: `导入并保存成功！\n名称：${data.name}\nID：${data.id}\n位置：${data.location}`,
+      content: `导入并保存成功！\n名称�?{data.name}\nID�?{data.id}\n位置�?{data.location}`,
       duration: 5000,
     })
     handleManualCancel()
     fetchData()
   } catch (err: any) {
-    // 拦截器处理
+    // 拦截器处�?
   } finally {
     saveManualLoading.value = false
   }
@@ -723,7 +753,7 @@ const columns = computed(() => [
   { title: 'CVE编号', slotName: 'cve_id', width: 160 },
   { title: 'CNVD编号', slotName: 'cnvd_id', width: 160 },
   { title: '危害等级', slotName: 'severity', width: 100 },
-  { title: '作者', slotName: 'author', width: 160 },
+  { title: '作�?, slotName: 'author', width: 160 },
   { title: '创建时间', dataIndex: 'created_at', width: 180, sortable: { sortDirections: ['ascend', 'descend'] } },
   { title: '操作', slotName: 'operations', fixed: 'right', width: 150 },
 ])

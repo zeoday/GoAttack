@@ -18,6 +18,8 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// 设置上传文件时的最大内存限制，默认是32MB，对于巨量的POC文件批量导入可能不够，扩大到 1GB
+	r.MaxMultipartMemory = 1024 << 20
 	// CORS 设置
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},

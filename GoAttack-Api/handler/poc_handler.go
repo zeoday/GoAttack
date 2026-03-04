@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -352,31 +352,57 @@ func ScanAndImportPocs(c *gin.Context) {
 	})
 }
 
-// SelectDirectory 选择文件夹（Windows）
-func SelectDirectory(c *gin.Context) {
-	// 使用 PowerShell 打开文件夹选择对话框
-	cmd := exec.Command("powershell", "-Command",
-		"Add-Type -AssemblyName System.Windows.Forms; "+
-			"$dialog = New-Object System.Windows.Forms.FolderBrowserDialog; "+
-			"$dialog.Description = '选择nuclei-templates目录'; "+
-			"$dialog.ShowNewFolderButton = $false; "+
-			"if ($dialog.ShowDialog() -eq 'OK') { $dialog.SelectedPath }")
-
-	output, err := cmd.Output()
+// UploadDirectoryPocs 接收前端上传的目录/多个文件并扫描导入
+func UploadDirectoryPocs(c *gin.Context) {
+	form, err := c.MultipartForm()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code": 50000,
-			"msg":  "打开文件夹选择器失败: " + err.Error(),
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": 40000,
+			"msg":  "获取上传文件失败: " + err.Error(),
 			"data": nil,
 		})
 		return
 	}
 
-	selectedPath := strings.TrimSpace(string(output))
-	if selectedPath == "" {
+	files := form.File["files"]
+	if len(files) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": 40000,
-			"msg":  "未选择文件夹",
+			"msg":  "未选择文件夹或文件夹为空",
+			"data": nil,
+		})
+		return
+	}
+
+	// 创建临时目录存放上传的POC
+	tempDir, err := os.MkdirTemp("", "poc_upload_*")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 50000, "msg": "创建临时目录失败"})
+		return
+	}
+	defer os.RemoveAll(tempDir)
+
+	// 将所有文件保存到临时目录
+	for _, file := range files {
+		// 忽略非 yaml/yml 文件
+		if !strings.HasSuffix(file.Filename, ".yaml") && !strings.HasSuffix(file.Filename, ".yml") {
+			continue
+		}
+		baseName := filepath.Base(file.Filename)
+		err := c.SaveUploadedFile(file, filepath.Join(tempDir, baseName))
+		if err != nil {
+			log.Error("保存文件失败: %v", err)
+			continue
+		}
+	}
+
+	// 调用扫描器扫描临时目录
+	scanner := scan_poc.NewPocScanner(tempDir)
+	totalFiles, validFiles, err := scanner.ScanAndImport()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 50000,
+			"msg":  "导入失败: " + err.Error(),
 			"data": nil,
 		})
 		return
@@ -384,8 +410,11 @@ func SelectDirectory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 20000,
-		"msg":  "选择成功",
-		"data": selectedPath,
+		"msg":  "导入成功",
+		"data": gin.H{
+			"total_files": totalFiles,
+			"valid_files": validFiles,
+		},
 	})
 }
 

@@ -20,8 +20,8 @@ func RegisterRoutes(r *gin.RouterGroup) {
 		poc.DELETE("/batch-delete", handler.BatchDeletePocs)     // 批量删除POC
 
 		// POC扫描和导入
-		poc.POST("/scan-import", handler.ScanAndImportPocs)    // 扫描并导入POC模板
-		poc.POST("/select-directory", handler.SelectDirectory) // 选择文件夹
+		poc.POST("/scan-import", handler.ScanAndImportPocs)        // 扫描并导入POC模板
+		poc.POST("/upload-directory", handler.UploadDirectoryPocs) // 前端上传目录导入
 
 		// 手动导入
 		poc.POST("/manual-import/save", handler.SaveManualPoc) // 保存手动导入的POC

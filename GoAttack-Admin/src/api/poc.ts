@@ -100,9 +100,15 @@ export function scanAndImportPocs(data: { path: string }): UnwrappedResponse<{ t
   return axios.post('/api/poc/scan-import', data) as any
 }
 
-// 弹出文件夹选择框并获取路径
-export function selectDirectory(): UnwrappedResponse<string> {
-  return axios.post('/api/poc/select-directory') as any
+// 前端上传压缩包或批量文件导入POC
+export function uploadDirectoryPocs(data: FormData): UnwrappedResponse<{ total_files: number; valid_files: number }> {
+  return axios.post('/api/poc/upload-directory', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    // 增加超时时间，以防文件太多
+    timeout: 300000,
+  }) as any
 }
 
 // 保存手动输入的POC模板

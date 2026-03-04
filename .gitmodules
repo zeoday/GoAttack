@@ -1,3 +1,0 @@
-[submodule "GoAttack-Api/service/lib/nuclei"]
-	path = GoAttack-Api/service/lib/nuclei
-	url = https://github.com/projectdiscovery/nuclei.git
