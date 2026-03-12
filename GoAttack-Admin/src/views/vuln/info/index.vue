@@ -616,18 +616,17 @@ const handleTriggerUpload = () => {
 }
 
 const handleFilesSelected = async (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const files = target.files
+  const { files } = e.target as HTMLInputElement
   if (!files || files.length === 0) return
 
   scanLoading.value = true
   const formData = new FormData()
   let yamlCount = 0
-  for (let i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i += 1) {
     const file = files[i]
     if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
       formData.append('files', file)
-      yamlCount++
+      yamlCount += 1
     }
   }
 

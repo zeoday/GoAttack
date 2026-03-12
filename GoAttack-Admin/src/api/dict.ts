@@ -15,10 +15,18 @@ export function viewDict(id: number) {
 export function downloadDict(id: number) {
   return axios.get('/api/dict/download', {
     params: { id },
-    responseType: 'blob', // Important for downloading small/mid files
+    responseType: 'blob',
   })
 }
 
 export function deleteDict(id: number) {
   return axios.delete(`/api/dict/delete/${id}`)
+}
+
+export function generateSocialDict(data: any) {
+  return axios.post('/api/dict/generate/social', data)
+}
+
+export function generateComboDict(data: any) {
+  return axios.post('/api/dict/generate/combo', data)
 }
