@@ -24,6 +24,9 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/dict/download", DownloadDict)
 	r.POST("/dict/upload", UploadDict)
 	r.DELETE("/dict/delete/:id", DeleteDict)
+	// 字典生成
+	r.POST("/dict/generate/social", GenerateSocialDict)
+	r.POST("/dict/generate/combo", GenerateComboDict)
 }
 
 func countLines(filepath string) int64 {
