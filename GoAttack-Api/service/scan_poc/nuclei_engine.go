@@ -300,6 +300,14 @@ func (ne *NucleiEngine) VerifyWithTemplatePaths(target string, templatePaths []s
 
 	// 构建完整的模板文件路径
 	fullPaths := make([]string, 0, len(templatePaths))
+	tempDir := ""
+	cleanupTempDir := func() {
+		if tempDir != "" {
+			_ = os.RemoveAll(tempDir)
+		}
+	}
+	defer cleanupTempDir()
+
 	for i, path := range templatePaths {
 		// 如果是相对路径，拼接基础目录
 		fullPath := path
@@ -311,6 +319,30 @@ func (ne *NucleiEngine) VerifyWithTemplatePaths(target string, templatePaths []s
 		fileInfo, err := os.Stat(fullPath)
 		if err != nil {
 			log.Warn("[NucleiEngine] Warning: Template file not found: %s (error: %v)", fullPath, err)
+
+			// Docker/目录上传场景下，模板文件可能来自临时目录并已被清理。
+			// 当 file_path 失效时，回退使用数据库中的 template_content 临时落盘。
+			if i < len(pocs) && pocs[i] != nil && strings.TrimSpace(pocs[i].TemplateContent) != "" {
+				if tempDir == "" {
+					tempDir, err = os.MkdirTemp("", "goattack_nuclei_tpl_*")
+					if err != nil {
+						log.Warn("[NucleiEngine] Failed to create temp template dir: %v", err)
+						continue
+					}
+				}
+
+				tmpName := fmt.Sprintf("%s_%d.yaml", sanitizeTemplateName(pocs[i].TemplateID), i)
+				tmpPath := filepath.Join(tempDir, tmpName)
+				if writeErr := os.WriteFile(tmpPath, []byte(pocs[i].TemplateContent), 0600); writeErr != nil {
+					log.Warn("[NucleiEngine] Failed to materialize template content for %s: %v", pocs[i].TemplateID, writeErr)
+					continue
+				}
+
+				log.Info("[NucleiEngine] Materialized template from DB content: %s", tmpPath)
+				fullPaths = append(fullPaths, tmpPath)
+				continue
+			}
+
 			continue
 		}
 
@@ -540,6 +572,28 @@ func (ne *NucleiEngine) VerifyWithTemplatePaths(target string, templatePaths []s
 
 	log.Info("[NucleiEngine] Verification completed: %d aggregated results", len(finalResults))
 	return finalResults, nil
+}
+
+func sanitizeTemplateName(name string) string {
+	name = strings.TrimSpace(strings.ToLower(name))
+	if name == "" {
+		return "template"
+	}
+
+	b := strings.Builder{}
+	for _, r := range name {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			b.WriteRune(r)
+		} else {
+			b.WriteRune('_')
+		}
+	}
+
+	result := strings.Trim(b.String(), "_")
+	if result == "" {
+		return "template"
+	}
+	return result
 }
 
 // Close 关闭引擎
